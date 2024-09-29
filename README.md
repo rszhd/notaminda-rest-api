@@ -1,0 +1,1 @@
+Django Backend for Mindmap REST API

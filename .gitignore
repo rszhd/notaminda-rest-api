@@ -1,0 +1,18 @@
+env/
+
+# Python cache files
+__pycache__/
+*.pyc
+
+# Database
+db.sqlite3
+
+# Secret key
+*.secret
+
+# Local settings
+local_settings.py
+
+# IDE specific files
+.vscode/
+.idea/
