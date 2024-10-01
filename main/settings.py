@@ -148,6 +148,7 @@ STATIC_ROOT = os.environ.get('STATIC_ROOT', os.path.join(BASE_DIR, 'staticfiles'
 CORS_ALLOWED_ORIGINS = [
     "https://notaminda.10brand.company",
     "https://notaminda-api.10brand.company",
+    "https://notaminda-10brandcompany.web.app/"
 ]
 CORS_ALLOW_CREDENTIALS = True
 REST_FRAMEWORK = {
