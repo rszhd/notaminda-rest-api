@@ -148,6 +148,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 #     "https://notaminda-api.10brand.company",
 #     "https://notaminda-10brandcompany.web.app/"
 # ]
+ALLOWED_HOSTS = ['*'] 
 CORS_ALLOW_CREDENTIALS = True
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
