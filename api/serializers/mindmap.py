@@ -6,6 +6,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 import json
 from django.db import transaction
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Prefetch
 
 class JSONField(serializers.Field):
     def to_representation(self, value):
@@ -49,32 +50,15 @@ class NodeUpdateSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'parent', 'flow_data']
 
 class MindMapUpdateSerializer(BaseMindMapSerializer):
-    title = serializers.CharField(required=True)
     nodes = NodeUpdateSerializer(many=True, required=False)
 
     class Meta(BaseMindMapSerializer.Meta):
-        fields = ['title', 'nodes', 'flow_data']
-
-    # def validate_nodes(self, value):
-    #     mind_map = self.instance
-    #     for node_data in value:
-    #         if 'parent' in node_data and node_data['parent'] is not None:
-    #             parent_id = node_data['parent'].id if isinstance(node_data['parent'], Node) else node_data['parent']
-    #             try:
-    #                 parent = Node.objects.get(id=parent_id, mind_map=mind_map)
-    #                 node_data['parent'] = parent.id
-    #             except Node.DoesNotExist:
-    #                 raise serializers.ValidationError(f"Parent node with id {parent_id} does not exist in this mind map.")
-    #     return value
+        fields = ['nodes', 'flow_data']
 
     def update(self, instance, validated_data):
         user = self.context['request'].user
         if instance.user != user:
             raise serializers.ValidationError("You can only update your own mind maps.")
-
-        if 'title' in validated_data:
-            instance.title = validated_data['title']
-            instance.save()
 
         if 'nodes' in validated_data:
             self.update_nodes(instance, validated_data['nodes'])
@@ -87,11 +71,12 @@ class MindMapUpdateSerializer(BaseMindMapSerializer):
 
     @transaction.atomic
     def update_nodes(self, mind_map, nodes_data):
-        existing_nodes = {str(node.id): node for node in mind_map.nodes.all()}
+        existing_nodes = {str(node.id): node for node in mind_map.nodes.select_related('parent').all()}
         new_nodes = {}
         parent_updates = []
+        nodes_to_update = []
+        nodes_to_create = []
 
-        # First pass: Create or update nodes without setting parent relationships
         for node_data in nodes_data:
             node_id = str(node_data.get('id'))
             parent_id = node_data.pop('parent', None)
@@ -100,33 +85,37 @@ class MindMapUpdateSerializer(BaseMindMapSerializer):
                 node = existing_nodes[node_id]
                 for attr, value in node_data.items():
                     setattr(node, attr, value)
-                node.save()
+                nodes_to_update.append(node)
                 del existing_nodes[node_id]
             else:
-                node = Node.objects.create(mind_map=mind_map, **node_data)
+                node = Node(mind_map=mind_map, **node_data)
                 new_nodes[node_id] = node
-                Note.objects.create(node=node, content="")
+                nodes_to_create.append(node)
 
             if parent_id:
                 parent_updates.append((node, parent_id))
 
-        # Second pass: Update parent relationships
+        # Bulk create new nodes
+        Node.objects.bulk_create(nodes_to_create)
+        
+        # Bulk update existing nodes
+        Node.objects.bulk_update(nodes_to_update, fields=['title'])
+
+        # Update parent relationships
+        parent_dict = {str(node.id): node for node in mind_map.nodes.all()}
         for node, parent_id in parent_updates:
-            try:
-                parent_node = mind_map.nodes.get(id=parent_id)
+            parent_node = parent_dict.get(parent_id)
+            if parent_node:
                 node.parent = parent_node
-                node.save()
-            except ObjectDoesNotExist:
-                pass
+
+        # Bulk update parent relationships
+        Node.objects.bulk_update([node for node, _ in parent_updates], fields=['parent'])
 
         # Delete nodes that are no longer present in the input data
-        for node in existing_nodes.values():
-            node.delete()
+        Node.objects.filter(id__in=[node.id for node in existing_nodes.values()]).delete()
 
     def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        representation['nodes'] = NodeSerializer(instance.nodes.all(), many=True).data
-        return representation
+        return {"message": "Mind map updated successfully"}
     
 class MindMapListSerializer(serializers.ModelSerializer):
     class Meta(BaseMindMapSerializer.Meta):
