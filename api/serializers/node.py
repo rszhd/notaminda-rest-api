@@ -1,7 +1,5 @@
 from rest_framework import serializers
-from ..models import MindMap, Node, Note
-from django.contrib.auth.models import User
-from .note import NoteSerializer
+from ..models import  Node
 
 import json
 from rest_framework import serializers
@@ -28,16 +26,12 @@ class JSONField(serializers.Field):
         return json.dumps(data)
 
 class NodeSerializer(serializers.ModelSerializer):
-    children = serializers.SerializerMethodField()
-    note = NoteSerializer(read_only=True)
     flow_data = JSONField()
 
     class Meta:
         model = Node
-        fields = ['id', 'title', 'parent', 'mind_map', 'flow_data', 'created_at', 'children', 'note']
-
-    def get_children(self, obj):
-        return NodeSerializer(obj.children.all(), many=True).data
+        fields = ['id', 'title', 'parent', 'flow_data', 'created_at']
+        read_only_fields = ['parent']
 
 class NodeCreateSerializer(serializers.ModelSerializer):
     class Meta:

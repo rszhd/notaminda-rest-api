@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from ..models import MindMap, Node
-from .user import UserSerializer
 from .node import NodeSerializer
 from ..models.note import Note
 from django.core.serializers.json import DjangoJSONEncoder
@@ -35,12 +34,11 @@ class BaseMindMapSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'flow_data', 'created_at']
 
 class MindMapSerializer(BaseMindMapSerializer):
-    user = UserSerializer(read_only=True)
     nodes = NodeSerializer(many=True, read_only=True)
     flow_data = JSONField()
 
     class Meta(BaseMindMapSerializer.Meta):
-        fields = BaseMindMapSerializer.Meta.fields + ['user', 'nodes']
+        fields = BaseMindMapSerializer.Meta.fields + ['nodes']
 
 class NodeUpdateSerializer(serializers.ModelSerializer):
     id = serializers.CharField(required=False) 

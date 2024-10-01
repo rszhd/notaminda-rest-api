@@ -1,7 +1,6 @@
 import uuid
 from django.db import models
 from django.core.exceptions import ValidationError
-from django.db.models import JSONField
 from .mindmap import MindMap
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -51,14 +50,14 @@ def combine_arrays(positions: List[Position], subtopics: List[Subtopic]) -> List
 class Node(models.Model):
     id = models.CharField(max_length=50, primary_key=True, default=generate_unique_id, editable=False)
     title = models.CharField(max_length=200)
-    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
-    mind_map = models.ForeignKey(MindMap, on_delete=models.CASCADE, related_name='nodes')
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children', db_index=True)
+    mind_map = models.ForeignKey(MindMap, on_delete=models.CASCADE, related_name='nodes', db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    flow_data = JSONField(null=True, blank=True)
+    flow_data = models.JSONField(null=True, blank=True)
 
     class Meta:
         indexes = [
-            models.Index(fields=['id']),
+            models.Index(fields=['id', 'parent', 'mind_map']),
         ]
 
     def __str__(self):
