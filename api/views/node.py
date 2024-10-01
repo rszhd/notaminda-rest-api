@@ -8,6 +8,7 @@ from ..serializers import (
     GeneratedChildrenSerializer
 )
 from rest_framework.decorators import action
+from asgiref.sync import async_to_sync
 
 class NodeViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
@@ -50,7 +51,7 @@ class NodeViewSet(viewsets.ModelViewSet):
         
         try:
             # Generate children nodes
-            children = node.generate_children(num_children, positions)
+            children = async_to_sync(node.generate_children)(num_children, positions)
             
             # Serialize the response
             serializer = GeneratedChildrenSerializer({'children': children})

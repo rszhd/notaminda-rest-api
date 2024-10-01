@@ -2,13 +2,20 @@ import uuid
 from django.db import models
 from django.core.exceptions import ValidationError
 from .mindmap import MindMap
-from openai import OpenAI
 from dotenv import load_dotenv
 import os
 from pydantic import BaseModel
-from typing import List, Dict
+from typing import List
+import asyncio
+from functools import lru_cache
+from openai import AsyncOpenAI
+import json
 
 load_dotenv()
+
+@lru_cache(maxsize=1)
+def get_openai_client():
+    return AsyncOpenAI(api_key=os.environ.get('OPENAI_KEY'))
 
 class Subtopic(BaseModel):
     title: str
@@ -27,25 +34,6 @@ class PositionList(BaseModel):
 
 def generate_unique_id():
     return uuid.uuid4().hex[:20]
-
-def combine_arrays(positions: List[Position], subtopics: List[Subtopic]) -> List[dict]:
-    if len(positions) != len(subtopics):
-        raise ValidationError("Input arrays must have the same length.")
-
-    combined_array = []
-
-    for position, subtopic in zip(positions, subtopics):
-        combined_item = {
-            'x': position.x,
-            'y': position.y,
-            'absolute_x': position.absolute_x,
-            'absolute_y': position.absolute_y,
-            'title': subtopic.title,
-            'id': uuid.uuid4().hex[:20]
-        }
-        combined_array.append(combined_item)
-
-    return combined_array
 
 class Node(models.Model):
     id = models.CharField(max_length=50, primary_key=True, default=generate_unique_id, editable=False)
@@ -71,34 +59,27 @@ class Node(models.Model):
         self.full_clean()
         super().save(*args, **kwargs)
 
-    def generate_children(self, num_children=3, positions=""):
-        open_ai = OpenAI(api_key=os.environ.get('OPENAI_KEY'))
+    async def generate_children(self, num_children=3, positions=None):
+        client = get_openai_client()
 
         nodes_structure = []
         nodes_position = []
-        for item in positions:
-            new_structure = {}
-            new_structure['id'] = item['id']
-            new_structure['title'] = item['title'] 
-            new_structure['parent_node'] = item.get('parentNode', None)
-            new_positions = item.copy()
-            del new_positions['title']
-            nodes_position.append(new_positions)
-            nodes_structure.append(new_structure)
+        if positions:
+            for item in positions:
+                new_structure = {
+                    'id': item['id'],
+                    'title': item['title'],
+                    'parent_node': item.get('parentNode')
+                }
+                new_positions = {k: v for k, v in item.items() if k != 'title'}
+                nodes_position.append(new_positions)
+                nodes_structure.append(new_structure)
 
         prompt = f"""
         These are nodes structure for my mind map.
         {nodes_structure}
-        I need your helps to generate {num_children} subtopics for the {self.id} node
+        I need your help to generate {num_children} subtopics for the {self.id} node
         """
-        response = open_ai.beta.chat.completions.parse(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": prompt}
-            ],
-            response_format=SubtopicList,
-        )
 
         position_prompt = f"""
         These are my mind map nodes and their position in a canvas. 
@@ -106,20 +87,56 @@ class Node(models.Model):
         {nodes_position}
         ```
         I need to add {num_children} more children nodes for node with id {self.id}.
-        Suggest 3 x and y position for the new nodes. 
-        Follow the same position pattern as my mind map & ensure it doesnt overlapping each others.
+        Suggest {num_children} x and y position for the new nodes. 
+        Follow the same position pattern as my mind map & ensure it doesn't overlap with each other.
         """
-        position_response = open_ai.beta.chat.completions.parse(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": position_prompt}
-            ],
-            response_format=PositionList,
+
+        subtopic_task = asyncio.create_task(
+            client.beta.chat.completions.parse(
+                        model="gpt-4o-mini",
+                        messages=[
+                            {"role": "system", "content": "You are a helpful assistant."},
+                            {"role": "user", "content": prompt}
+                        ],
+                        response_format=SubtopicList,
+                    )
         )
 
-        new_nodes_positions = position_response.choices[0].message.parsed.positions
-        subtopics = response.choices[0].message.parsed.subtopics
-        new_nodes = combine_arrays(new_nodes_positions, subtopics)
+        position_task = asyncio.create_task(
+            client.beta.chat.completions.parse(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {"role": "user", "content": position_prompt}
+                ],
+                response_format=PositionList,
+            )
+        )
+
+        subtopic_response, position_response = await asyncio.gather(subtopic_task, position_task)
+
+        subtopics = subtopic_response.choices[0].message.content
+        new_positions = position_response.choices[0].message.content
+        subtopics_dict = json.loads(subtopics)
+        new_positions_dict = json.loads(new_positions)
+
+        new_nodes = self.combine_arrays(new_positions_dict['positions'], subtopics_dict['subtopics'])
 
         return new_nodes
+
+    @staticmethod
+    def combine_arrays(positions, subtopics):
+        if len(positions) != len(subtopics):
+            raise ValidationError("Input arrays must have the same length.")
+
+        return [
+            {
+                'x': pos['x'],
+                'y': pos['y'],
+                'absolute_x': pos['absolute_x'],
+                'absolute_y': pos['absolute_y'],
+                'title': subtopic['title'],
+                'id': uuid.uuid4()
+            }
+            for pos, subtopic in zip(positions, subtopics)
+        ]
