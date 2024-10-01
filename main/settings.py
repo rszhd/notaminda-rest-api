@@ -142,13 +142,13 @@ SIMPLE_JWT = {
 STATIC_URL = '/static/'
 STATIC_ROOT = os.environ.get('STATIC_ROOT', os.path.join(BASE_DIR, 'staticfiles'))
 
-CORS_ALLOW_ALL_ORIGINS = True
-# CORS_ALLOWED_ORIGINS = [
-#     "https://notaminda.10brand.company",
-#     "https://notaminda-api.10brand.company",
-#     "https://notaminda-10brandcompany.web.app/"
-# ]
-ALLOWED_HOSTS = ['*'] 
+# CORS_ALLOW_ALL_ORIGINS = True
+# ALLOWED_HOSTS = ['*'] 
+CORS_ALLOWED_ORIGINS = [
+    "https://notaminda.10brand.company",
+    "https://notaminda-api.10brand.company",
+    "https://notaminda-10brandcompany.web.app/"
+]
 CORS_ALLOW_CREDENTIALS = True
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
