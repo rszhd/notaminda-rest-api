@@ -2,8 +2,12 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 from ..models import Node
 from ..serializers import (
-    NodeSerializer, NodeCreateSerializer, NodeUpdateSerializer,
+    NodeSerializer,
+    NodeCreateSerializer,
+    NodeUpdateSerializer,
+    GeneratedChildrenSerializer
 )
+from rest_framework.decorators import action
 
 class NodeViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
@@ -30,3 +34,26 @@ class NodeViewSet(viewsets.ModelViewSet):
             return Response({"detail": "You can only update nodes in your own mind maps."},
                             status=status.HTTP_403_FORBIDDEN)
         serializer.save()
+
+    @action(detail=True, methods=['post'])
+    def auto_generate_children(self, request, pk=None):
+        node = self.get_object()
+        
+        # Check if the user has permission to modify this node
+        if node.mind_map.user != request.user:
+            return Response({"detail": "You can only generate children for nodes in your own mind maps."},
+                            status=status.HTTP_403_FORBIDDEN)
+
+        # Get the number of children to generate (default to 3 if not specified)
+        num_children = request.data.get('num_children', 3)
+        positions = request.data.get('nodes_position')
+        
+        try:
+            # Generate children nodes
+            children = node.generate_children(num_children, positions)
+            
+            # Serialize the response
+            serializer = GeneratedChildrenSerializer({'children': children})
+            return Response(serializer.data)
+        except Exception as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)

@@ -50,6 +50,12 @@ class NodeCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("You can only create nodes for your own mind maps.")
         return Node.objects.create(**validated_data)
 
+    def create(self, validated_data):
+        user = self.context['request'].user
+        if validated_data['mind_map'].user != user:
+            raise serializers.ValidationError("You can only create nodes for your own mind maps.")
+        return Node.objects.create(**validated_data)
+
 class NodeUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Node
@@ -60,3 +66,14 @@ class NodeUpdateSerializer(serializers.ModelSerializer):
         if instance.mind_map.user != user:
             raise serializers.ValidationError("You can only update nodes in your own mind maps.")
         return super().update(instance, validated_data)
+
+class NodeSerializer2(serializers.Serializer):
+    x = serializers.FloatField()
+    y = serializers.FloatField()
+    absolute_x = serializers.FloatField()
+    absolute_y = serializers.FloatField()
+    title = serializers.CharField(max_length=255)
+    id = serializers.CharField(max_length=20)
+
+class GeneratedChildrenSerializer(serializers.Serializer):
+    children = NodeSerializer2(many=True, read_only=True)

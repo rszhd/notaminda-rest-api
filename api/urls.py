@@ -10,4 +10,9 @@ router.register(r'notes', NoteViewSet, basename='note')
 urlpatterns = [
     path('', include(router.urls)),
     path('register/', register_user, name='register'),
+    path(
+      'nodes/<str:pk>/auto_generate_children/',
+      NodeViewSet.as_view({'post': 'auto_generate_children'}),
+      name='node-auto-generate-children'
+    ),
 ]
