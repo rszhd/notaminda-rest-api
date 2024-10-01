@@ -38,6 +38,7 @@ def generate_unique_id():
 class Node(models.Model):
     id = models.CharField(max_length=50, primary_key=True, default=generate_unique_id, editable=False)
     title = models.CharField(max_length=200)
+    note = models.TextField()
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children', db_index=True)
     mind_map = models.ForeignKey(MindMap, on_delete=models.CASCADE, related_name='nodes', db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)

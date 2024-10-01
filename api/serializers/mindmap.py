@@ -1,11 +1,8 @@
 from rest_framework import serializers
 from ..models import MindMap, Node
-from .node import NodeSerializer
 from django.core.serializers.json import DjangoJSONEncoder
 import json
 from django.db import transaction
-from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Prefetch
 
 class JSONField(serializers.Field):
     def to_representation(self, value):
@@ -33,14 +30,22 @@ class BaseMindMapSerializer(serializers.ModelSerializer):
         model = MindMap
         fields = ['id', 'title', 'flow_data', 'created_at']
 
+class MindMapNodeSerializer(serializers.ModelSerializer):
+    flow_data = JSONField()
+
+    class Meta:
+        model = Node
+        fields = ['id', 'title', 'parent', 'flow_data', 'created_at']
+        read_only_fields = ['parent']
+
 class MindMapSerializer(BaseMindMapSerializer):
-    nodes = NodeSerializer(many=True, read_only=True)
+    nodes = MindMapNodeSerializer(many=True, read_only=True)
     flow_data = JSONField()
 
     class Meta(BaseMindMapSerializer.Meta):
         fields = BaseMindMapSerializer.Meta.fields + ['nodes']
 
-class NodeUpdateSerializer(serializers.ModelSerializer):
+class MindMapUpdateNodeSerializer(serializers.ModelSerializer):
     id = serializers.CharField(required=False) 
     parent = serializers.CharField(allow_null=True, required=False)
     
@@ -49,7 +54,7 @@ class NodeUpdateSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'parent', 'flow_data']
 
 class MindMapUpdateSerializer(BaseMindMapSerializer):
-    nodes = NodeUpdateSerializer(many=True, required=False)
+    nodes = MindMapUpdateNodeSerializer(many=True, required=False)
 
     class Meta(BaseMindMapSerializer.Meta):
         fields = ['nodes', 'flow_data']
