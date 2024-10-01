@@ -92,8 +92,6 @@ class Node(models.Model):
         {nodes_structure}
         I need your helps to generate {num_children} subtopics for the {self.id} node
         """
-        print(prompt)
-
         response = open_ai.beta.chat.completions.parse(
             model="gpt-4o-mini",
             messages=[
@@ -112,8 +110,6 @@ class Node(models.Model):
         Suggest 3 x and y position for the new nodes. 
         Follow the same position pattern as my mind map & ensure it doesnt overlapping each others.
         """
-        print(nodes_position)
-
         position_response = open_ai.beta.chat.completions.parse(
             model="gpt-4o-mini",
             messages=[

@@ -9,7 +9,6 @@ from rest_framework.permissions import AllowAny
 def register_user(request):
     password = request.data.get('password')
     email = request.data.get('email')
-    print(f"email {email}")
 
     if not email or not password:
         return Response({'error': 'Please provide both email and password'}, status=status.HTTP_400_BAD_REQUEST)

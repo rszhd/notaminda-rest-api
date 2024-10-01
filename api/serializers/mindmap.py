@@ -79,7 +79,6 @@ class MindMapUpdateSerializer(BaseMindMapSerializer):
             instance.save()
 
         if 'nodes' in validated_data:
-            # print(validated_data['nodes'])
             self.update_nodes(instance, validated_data['nodes'])
 
         if 'flow_data' in validated_data:
