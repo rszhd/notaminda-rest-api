@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from ..models import MindMap, Node
 from .node import NodeSerializer
-from ..models.note import Note
 from django.core.serializers.json import DjangoJSONEncoder
 import json
 from django.db import transaction
