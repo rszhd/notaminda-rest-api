@@ -12,7 +12,6 @@ from openai import AsyncOpenAI
 import json
 import aiohttp
 
-
 load_dotenv()
 
 @lru_cache(maxsize=1)
@@ -68,14 +67,6 @@ class Node(models.Model):
             return AsyncOpenAI(api_key=ai_key)
         return get_openai_client()
     
-        # async with aiohttp.ClientSession() as session:
-        #     tasks = [
-        #         self.make_openai_call(session, prompt1),
-        #         self.make_openai_call(session, prompt2)
-        #     ]
-        #     responses = await asyncio.gather(*tasks)
-        # return responses
-
     async def generate_children(self, num_children=3, positions=None, ai_key=None, ai_model=None):
         async with aiohttp.ClientSession() as session:
             client = self.create_client(ai_key)
@@ -129,14 +120,11 @@ class Node(models.Model):
             ]
 
             responses = await asyncio.gather(*tasks)
-            print(responses)
             subtopics = responses[0].choices[0].message.content
             new_positions = responses[1].choices[0].message.content
             subtopics_dict = json.loads(subtopics)
             new_positions_dict = json.loads(new_positions)
-
             new_nodes = self.combine_arrays(new_positions_dict['positions'], subtopics_dict['subtopics'])
-
             return new_nodes
 
     @staticmethod
