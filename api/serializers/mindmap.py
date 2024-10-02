@@ -120,7 +120,7 @@ class MindMapUpdateSerializer(BaseMindMapSerializer):
 
     def to_representation(self, instance):
         return {"message": "Mind map updated successfully"}
-    
+
 class MindMapListSerializer(serializers.ModelSerializer):
     class Meta(BaseMindMapSerializer.Meta):
         fields = ['id', 'title', 'created_at']
