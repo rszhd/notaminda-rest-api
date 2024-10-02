@@ -60,8 +60,15 @@ class Node(models.Model):
         self.full_clean()
         super().save(*args, **kwargs)
 
-    async def generate_children(self, num_children=3, positions=None):
-        client = get_openai_client()
+    @staticmethod
+    def create_client(ai_key=None):
+        if ai_key:
+            return AsyncOpenAI(api_key=ai_key)
+        return get_openai_client()
+
+    async def generate_children(self, num_children=3, positions=None, ai_key=None, ai_model=None):
+        client = self.create_client(ai_key)
+        model = ai_model if ai_key and ai_model else "gpt-4o-mini"
 
         nodes_structure = []
         nodes_position = []
@@ -94,7 +101,7 @@ class Node(models.Model):
 
         subtopic_task = asyncio.create_task(
             client.beta.chat.completions.parse(
-                        model="gpt-4o-mini",
+                        model=model,
                         messages=[
                             {"role": "system", "content": "You are a helpful assistant."},
                             {"role": "user", "content": prompt}
@@ -105,7 +112,7 @@ class Node(models.Model):
 
         position_task = asyncio.create_task(
             client.beta.chat.completions.parse(
-                model="gpt-4o-mini",
+                model=model,
                 messages=[
                     {"role": "system", "content": "You are a helpful assistant."},
                     {"role": "user", "content": position_prompt}

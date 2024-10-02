@@ -48,10 +48,12 @@ class NodeViewSet(viewsets.ModelViewSet):
         # Get the number of children to generate (default to 3 if not specified)
         num_children = request.data.get('num_children', 3)
         positions = request.data.get('nodes_position')
+        ai_key = request.data.get('ai_key')
+        ai_model = request.data.get('ai_model')
         
         try:
             # Generate children nodes
-            children = async_to_sync(node.generate_children)(num_children, positions)
+            children = async_to_sync(node.generate_children)(num_children, positions, ai_key, ai_model)
             
             # Serialize the response
             serializer = GeneratedChildrenSerializer({'children': children})
