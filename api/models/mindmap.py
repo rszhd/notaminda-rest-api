@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 class MindMap(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, db_index=True)
     title = models.CharField(max_length=200)
+    is_private = models.BooleanField(default=True)
     flow_data = models.JSONField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     

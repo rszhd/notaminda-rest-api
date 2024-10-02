@@ -1,10 +1,12 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import MindMapViewSet, NodeViewSet, register_user, login_user
+from .views import MindMapViewSet, NodeViewSet, PublicNodeViewSet, PublicMindMapViewSet, register_user, login_user
 
 router = DefaultRouter()
 router.register(r'mindmaps', MindMapViewSet, basename='mindmap')
 router.register(r'nodes', NodeViewSet, basename='node')
+router.register(r'public-mindmaps', PublicMindMapViewSet, basename='public_mindmap')
+router.register(r'public-nodes', PublicNodeViewSet, basename='public_node')
 
 urlpatterns = [
     path('', include(router.urls)),
