@@ -1,3 +1,4 @@
+import asyncio
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 from ..models import Node
@@ -51,12 +52,13 @@ class NodeViewSet(viewsets.ModelViewSet):
         ai_key = request.data.get('ai_key')
         ai_model = request.data.get('ai_model')
         
-        try:
-            # Generate children nodes
-            children = async_to_sync(node.generate_children)(num_children, positions, ai_key, ai_model)
-            
-            # Serialize the response
-            serializer = GeneratedChildrenSerializer({'children': children})
-            return Response(serializer.data)
-        except Exception as e:
-            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        # Generate children nodes
+        # children = async_to_sync(node.generate_children)(num_children, positions, ai_key, ai_model)
+
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        children = loop.run_until_complete(node.generate_children(num_children, positions, ai_key, ai_model))
+        
+        # Serialize the response
+        serializer = GeneratedChildrenSerializer({'children': children})
+        return Response(serializer.data)
