@@ -33,7 +33,7 @@ class PositionList(BaseModel):
     positions: List[Position]
 
 def generate_unique_id():
-    return uuid.uuid4().hex[:20]
+    return uuid.uuid4().hex[:50]
 
 class Node(models.Model):
     id = models.CharField(max_length=50, primary_key=True, default=generate_unique_id, editable=False)
