@@ -9,7 +9,6 @@ from ..serializers import (
     GeneratedChildrenSerializer
 )
 from rest_framework.decorators import action
-from asgiref.sync import async_to_sync
 
 class NodeViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
@@ -41,24 +40,18 @@ class NodeViewSet(viewsets.ModelViewSet):
     def auto_generate_children(self, request, pk=None):
         node = self.get_object()
         
-        # Check if the user has permission to modify this node
         if node.mind_map.user != request.user:
             return Response({"detail": "You can only generate children for nodes in your own mind maps."},
                             status=status.HTTP_403_FORBIDDEN)
 
-        # Get the number of children to generate (default to 3 if not specified)
         num_children = request.data.get('num_children', 3)
         positions = request.data.get('nodes_position')
         ai_key = request.data.get('ai_key')
         ai_model = request.data.get('ai_model')
         
-        # Generate children nodes
-        # children = async_to_sync(node.generate_children)(num_children, positions, ai_key, ai_model)
-
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         children = loop.run_until_complete(node.generate_children(num_children, positions, ai_key, ai_model))
         
-        # Serialize the response
         serializer = GeneratedChildrenSerializer({'children': children})
         return Response(serializer.data)
