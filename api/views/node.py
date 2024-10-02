@@ -51,7 +51,12 @@ class NodeViewSet(viewsets.ModelViewSet):
         
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        children = loop.run_until_complete(node.generate_children(num_children, positions, ai_key, ai_model))
+        children = loop.run_until_complete(node.generate_children(
+            num_children,
+            positions,
+            ai_key,
+            ai_model)
+        )
         
         serializer = GeneratedChildrenSerializer({'children': children})
         return Response(serializer.data)
