@@ -1,31 +1,9 @@
-import json
 from rest_framework import serializers
-from django.core.exceptions import ValidationError
 from ..models import Node
-
-class JSONField(serializers.Field):
-    def to_representation(self, value):
-        if value is None:
-            return None
-        if isinstance(value, str):
-            try:
-                return json.loads(value)
-            except json.JSONDecodeError:
-                return None
-        return value
-
-    def to_internal_value(self, data):
-        if data is None:
-            return None
-        if isinstance(data, str):
-            try:
-                return json.loads(data)
-            except json.JSONDecodeError:
-                raise ValidationError("Invalid JSON data")
-        return json.dumps(data)
+from ..utils.json_field_serializer import JSONFieldSerializer
 
 class NodeSerializer(serializers.ModelSerializer):
-    flow_data = JSONField()
+    flow_data = JSONFieldSerializer
 
     class Meta:
         model = Node
@@ -37,25 +15,10 @@ class NodeCreateSerializer(serializers.ModelSerializer):
         model = Node
         fields = ['title', 'parent', 'mind_map']
 
-    def validate(self, data):
-        user = self.context['request'].user
-        if data['mind_map'].user != user:
-            raise ValidationError("You can only create nodes for your own mind maps.")
-        return data
-
-    def create(self, validated_data):
-        return Node.objects.create(**validated_data)
-
 class NodeUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Node
         fields = ['title', 'note']
-
-    def validate(self, data):
-        user = self.context['request'].user
-        if self.instance.mind_map.user != user:
-            raise ValidationError("You can only update nodes in your own mind maps.")
-        return data
 
 class GenerateChildrenNodeSerializer(serializers.Serializer):
     x = serializers.FloatField()
@@ -67,3 +30,17 @@ class GenerateChildrenNodeSerializer(serializers.Serializer):
 
 class GeneratedChildrenSerializer(serializers.Serializer):
     children = GenerateChildrenNodeSerializer(many=True, read_only=True)
+
+class AutoGenerateChildrenSerializer(serializers.Serializer):
+    num_children = serializers.IntegerField(default=3, min_value=1, max_value=10)
+    nodes_position = serializers.ListField()
+    ai_key = serializers.CharField(max_length=255, required=True)
+    ai_model = serializers.CharField(max_length=100, required=True)
+
+    def validate_num_children(self, value):
+        if value < 1:
+            raise serializers.ValidationError("Number of children must be more than 1.")
+        return value
+
+class AutoGenerateNoteSerializer(serializers.Serializer):
+    instruction = serializers.CharField(required=True, max_length=1000)
