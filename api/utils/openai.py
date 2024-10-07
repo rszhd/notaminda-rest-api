@@ -3,7 +3,7 @@ from typing import List, Callable, Dict, Any
 from openai import OpenAI
 import tiktoken
 
-OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
+OPENAI_KEY = os.environ.get('OPENAI_KEY')
 AI_MODEL = os.environ.get('AI_MODEL')
 
 class OpenaiUtil:
@@ -18,7 +18,7 @@ class OpenaiUtil:
     ) -> Dict[str, Any]:
         
         model = model if api_key else AI_MODEL
-        api_key = api_key or OPENAI_API_KEY
+        api_key = api_key or OPENAI_KEY
         
         client = OpenAI(api_key=os.environ.get('OPENAI_KEY'))
         stream = client.chat.completions.create(

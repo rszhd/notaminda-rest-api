@@ -9,7 +9,7 @@ from django.core.exceptions import ValidationError
 from pydantic import BaseModel
 from openai import AsyncOpenAI
 
-OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
+OPENAI_KEY = os.environ.get('OPENAI_KEY')
 AI_MODEL = os.environ.get('AI_MODEL')
 
 logger = logging.getLogger(__name__)
@@ -39,7 +39,7 @@ class AutoGenerateNodeChildren:
         ai_model: str = None
     ) -> List[Dict]:
         ai_model = ai_model if ai_key else AI_MODEL
-        ai_key = ai_key or OPENAI_API_KEY
+        ai_key = ai_key or OPENAI_KEY
 
         def combine_children_data(positions: List[Dict], subtopics: List[Dict]) -> List[Dict]:
             if len(positions) != len(subtopics):

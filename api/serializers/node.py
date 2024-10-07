@@ -34,8 +34,8 @@ class GeneratedChildrenSerializer(serializers.Serializer):
 class AutoGenerateChildrenSerializer(serializers.Serializer):
     num_children = serializers.IntegerField(default=3, min_value=1, max_value=10)
     nodes_position = serializers.ListField()
-    ai_key = serializers.CharField(max_length=255, required=True)
-    ai_model = serializers.CharField(max_length=100, required=True)
+    ai_key = serializers.CharField(max_length=255, required=False, allow_null=True)
+    ai_model = serializers.CharField(max_length=100, required=False, allow_null=True)
 
     def validate_num_children(self, value):
         if value < 1:
