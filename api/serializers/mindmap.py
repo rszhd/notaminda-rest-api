@@ -18,11 +18,10 @@ class NodeSerializer(serializers.ModelSerializer):
 class MindMapSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     nodes = NodeSerializer(many=True)
-    flow_data = JSONFieldSerializer()
 
     class Meta:
         model = MindMap
-        fields = ['id', 'title', 'user', 'flow_data', 'created_at', 'nodes', 'user']
+        fields = ['id', 'title', 'user', 'created_at', 'nodes', 'user']
 
 class MindMapListSerializer(serializers.ModelSerializer):
     class Meta:
@@ -42,15 +41,11 @@ class MindMapUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MindMap
-        fields = ['nodes', 'flow_data']
+        fields = ['nodes']
 
     def update(self, instance, validated_data):
         if 'nodes' in validated_data:
             UpdateMindMapNodes.run(instance, validated_data['nodes'])
-
-        if 'flow_data' in validated_data:
-            instance.flow_data = validated_data['flow_data']
-            instance.save()
 
         return instance
 
