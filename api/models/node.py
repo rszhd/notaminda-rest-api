@@ -28,3 +28,6 @@ class Node(models.Model):
         self.full_clean()
         super().save(*args, **kwargs)
 
+    @classmethod
+    def get_relationships(cls, mind_map_id):
+        return cls.objects.filter(mind_map_id=mind_map_id).exclude(parent=None).values('id', 'parent_id')
