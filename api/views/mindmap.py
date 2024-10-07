@@ -5,8 +5,12 @@ from ..serializers import (
     MindMapListSerializer
 )
 
+class IsMindMapOwner(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return obj.user == request.user
+
 class MindMapViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsMindMapOwner]
 
     def get_queryset(self):
         return MindMap.objects.filter(user=self.request.user)
@@ -20,5 +24,4 @@ class MindMapViewSet(viewsets.ModelViewSet):
             return MindMapUpdateSerializer
         return MindMapSerializer
 
-    def perform_create(self, serializer):
-        serializer.save()
+

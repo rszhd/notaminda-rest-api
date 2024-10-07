@@ -6,7 +6,6 @@ from rest_framework.permissions import AllowAny
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from openai import OpenAI
-import os
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -21,7 +20,7 @@ def register_user(request):
         return Response({'error': 'Username already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
     user = User.objects.create_user(username=email, password=password, email=email)
-    return Response({'message': 'User created successfully'}, status=status.HTTP_201_CREATED)
+    return Response({'message': 'User created successfully', 'user': user }, status=status.HTTP_201_CREATED)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -43,7 +42,7 @@ def login_user(request):
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
     
 @api_view(['POST'])
-def check_ai_api_key(request):
+def verify_ai_key(request):
     api_key = request.data.get('key')
     client = OpenAI(api_key=api_key)
 
@@ -62,3 +61,4 @@ def check_ai_api_key(request):
         return Response({'message': 'User created successfully'}, status=status.HTTP_200_OK)
     else:
         return Response({'error': 'Invalid key'}, status=status.HTTP_400_BAD_REQUEST)
+    
