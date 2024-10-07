@@ -3,16 +3,22 @@ from typing import List, Callable, Dict, Any
 from openai import OpenAI
 import tiktoken
 
+OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
+AI_MODEL = os.environ.get('AI_MODEL')
+
 class OpenaiUtil:
     @staticmethod
     def chat_stream(
-        # api_key: str = None,
+        api_key: str = None,
         buffer_size: int = 3,
         messages: List[Dict[str, str]] = [],
         on_stream: Callable[[str], None] = lambda _: None,
         openai_config: Dict[str, Any] = {},
-        model: str = "gpt-4o-mini"
+        model: str = None
     ) -> Dict[str, Any]:
+        
+        model = model if api_key else AI_MODEL
+        api_key = api_key or OPENAI_API_KEY
         
         client = OpenAI(api_key=os.environ.get('OPENAI_KEY'))
         stream = client.chat.completions.create(
@@ -34,7 +40,7 @@ class OpenaiUtil:
                     result += buffer
                     on_stream(result)
 
-                prompt_tokens = OpenaiUtil.count_tokens(messages)
+                prompt_tokens = OpenaiUtil.count_tokens(model, messages)
                 completion_tokens = result_total_token_count
 
                 return {
@@ -61,15 +67,15 @@ class OpenaiUtil:
         return {
             "response": result + buffer,
             "token_usage": {
-                "prompt_tokens": OpenaiUtil.count_tokens(messages),
+                "prompt_tokens": OpenaiUtil.count_tokens(model, messages),
                 "completion_tokens": result_total_token_count,
-                "total_tokens": OpenaiUtil.count_tokens(messages) + result_total_token_count
+                "total_tokens": OpenaiUtil.count_tokens(model, messages) + result_total_token_count
             }
         }
 
     @staticmethod
-    def count_tokens(messages: List[Dict[str, str]]) -> int:
-        encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
+    def count_tokens(model, messages: List[Dict[str, str]]) -> int:
+        encoding = tiktoken.encoding_for_model(model)
         num_tokens = 0
         for message in messages:
             num_tokens += 4

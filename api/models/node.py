@@ -5,8 +5,8 @@ from .mindmap import MindMap
 
 class Node(models.Model):
     id = models.CharField(max_length=50, primary_key=True, editable=False)
-    title = models.CharField(max_length=200)
-    note = models.TextField(blank=True)
+    title = models.CharField(max_length=200, null=True)
+    note = models.TextField(blank=True, null=True)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
     mind_map = models.ForeignKey(MindMap, on_delete=models.CASCADE, related_name='nodes')
     created_at = models.DateTimeField(auto_now_add=True)

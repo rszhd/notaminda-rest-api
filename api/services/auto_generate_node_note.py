@@ -1,6 +1,7 @@
 import os
 import threading
 import requests
+import json
 from ..utils.openai import OpenaiUtil
 from ..models import Node
 
@@ -10,7 +11,8 @@ class AutoGenerateNodeNote:
     @staticmethod
     def run(node, instruction=None):
         node_id = node.id
-        node_title = node.title
+        flow_data = json.loads(node.flow_data)
+        node_title = node.title if node.title else flow_data['data']['label']
         nodes = list(Node.objects.filter(mind_map=node.mind_map).values('id', 'title', 'parent'))
         
         default_message = f"""

@@ -43,4 +43,4 @@ class AutoGenerateChildrenSerializer(serializers.Serializer):
         return value
 
 class AutoGenerateNoteSerializer(serializers.Serializer):
-    instruction = serializers.CharField(required=True, max_length=1000)
+    instruction = serializers.CharField(required=False, max_length=500)

@@ -3,11 +3,14 @@ import uuid
 from typing import List, Dict
 import logging
 import json
+import os
 
 from django.core.exceptions import ValidationError
-from django.conf import settings
 from pydantic import BaseModel
 from openai import AsyncOpenAI
+
+OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
+AI_MODEL = os.environ.get('AI_MODEL')
 
 logger = logging.getLogger(__name__)
 
@@ -35,8 +38,8 @@ class AutoGenerateNodeChildren:
         ai_key: str = None,
         ai_model: str = None
     ) -> List[Dict]:
-        ai_key = ai_key or settings.OPENAI_API_KEY
-        ai_model = ai_model or settings.DEFAULT_AI_MODEL
+        ai_model = ai_model if ai_key else AI_MODEL
+        ai_key = ai_key or OPENAI_API_KEY
 
         def combine_children_data(positions: List[Dict], subtopics: List[Dict]) -> List[Dict]:
             if len(positions) != len(subtopics):
