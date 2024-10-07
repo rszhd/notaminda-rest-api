@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from .mindmap import MindMap
 
 class Node(models.Model):
-    id = models.CharField(max_length=50, primary_key=True, default=uuid.uuid4().hex[:50], editable=False)
+    id = models.CharField(max_length=50, primary_key=True, editable=False)
     title = models.CharField(max_length=200)
     note = models.TextField(blank=True)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
@@ -25,5 +25,7 @@ class Node(models.Model):
             raise ValidationError("A node cannot be its own parent.")
 
     def save(self, *args, **kwargs):
+        if not self.id:
+          self.id = uuid.uuid4()
         self.full_clean()
         super().save(*args, **kwargs)
