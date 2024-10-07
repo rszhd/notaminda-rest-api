@@ -3,7 +3,7 @@ from ..models import Node
 from ..utils.json_field_serializer import JSONFieldSerializer
 
 class NodeSerializer(serializers.ModelSerializer):
-    flow_data = JSONFieldSerializer
+    flow_data = JSONFieldSerializer()
 
     class Meta:
         model = Node

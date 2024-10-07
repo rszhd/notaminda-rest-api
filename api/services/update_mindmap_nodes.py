@@ -30,7 +30,7 @@ class UpdateMindMapNodes:
                 parent_updates.append((node, parent_id))
 
         Node.objects.bulk_create(nodes_to_create)
-        Node.objects.bulk_update(nodes_to_update, fields=['title'])
+        Node.objects.bulk_update(nodes_to_update, fields=['flow_data'])
 
         parent_dict = {str(node.id): node for node in mind_map.nodes.all()}
         for node, parent_id in parent_updates:

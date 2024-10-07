@@ -30,11 +30,19 @@ class MindMapSerializer(serializers.ModelSerializer):
         node_list = []
         relationship_list = []
 
+        def get_parent_id(node, root_node):
+            if node['parent_id'] == root_node.id:
+                return 'root'
+            elif node['parent_id'] is not None:
+                return str(node['parent_id'])
+            else:
+                return None
+
         for node in nodes:
             node_data = {
                 'dbId': str(node['id']),
                 'id': 'root' if str(node['id']) == str(root_node.id) else str(node['id']),
-                'parent_id': 'root' if node['parent_id'] == root_node.id else str(node['parent_id']),
+                'parent_id': get_parent_id(node, root_node),
                 'flow_data': json.loads(node['flow_data']) if node['flow_data'] else None,
             }
             node_list.append(node_data)
@@ -62,7 +70,7 @@ class MindMapUpdateNodeSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Node
-        fields = ['id', 'title', 'parent', 'flow_data']
+        fields = ['id', 'parent', 'flow_data']
 
 class MindMapUpdateSerializer(serializers.ModelSerializer):
     nodes = MindMapUpdateNodeSerializer(many=True, required=False)
