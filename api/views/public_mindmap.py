@@ -13,3 +13,4 @@ class PublicMindMapViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [PublicMindMapPermission]
     queryset = MindMap.objects.filter(is_private=False)
     serializer_class = MindMapSerializer
+

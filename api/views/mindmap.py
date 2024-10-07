@@ -1,7 +1,5 @@
 from rest_framework import viewsets, permissions
-import uuid
-from rest_framework.response import Response
-from ..models import MindMap, Node
+from ..models import MindMap
 from ..serializers import (
     MindMapSerializer, MindMapCreateSerializer, MindMapUpdateSerializer,
     MindMapListSerializer
@@ -26,20 +24,3 @@ class MindMapViewSet(viewsets.ModelViewSet):
             return MindMapUpdateSerializer
         return MindMapSerializer
 
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
-        data = serializer.data
-
-        relationships = Node.get_relationships(instance.id)
-        relationship_list = [
-            {
-                "id": str(uuid.uuid4()),
-                "source": str(rel['parent_id']),
-                "target": str(rel['id'])
-            }
-            for rel in relationships
-        ]
-
-        data['relationships'] = relationship_list
-        return Response(data)
