@@ -49,12 +49,11 @@ class NodeViewSet(viewsets.ModelViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         validated_data = serializer.validated_data
-        num_children = validated_data.get('num_children', 3)
         positions = validated_data.get('nodes_position')
         ai_key = validated_data['ai_key']
         ai_model = validated_data['ai_model']
         
-        children = AutoGenerateNodeChildren.run(node, num_children, positions, ai_key, ai_model)
+        children = AutoGenerateNodeChildren.run(node, positions, ai_key, ai_model)
         
         response_serializer = GeneratedChildrenSerializer({'children': children})
         return Response(response_serializer.data)
