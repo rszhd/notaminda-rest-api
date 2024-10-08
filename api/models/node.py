@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from .mindmap import MindMap
 
 class Node(models.Model):
-    id = models.CharField(max_length=50, primary_key=True, editable=False)
+    id = models.CharField(max_length=36, primary_key=True, editable=False)
     title = models.CharField(max_length=200, null=True)
     note = models.TextField(blank=True, null=True)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
