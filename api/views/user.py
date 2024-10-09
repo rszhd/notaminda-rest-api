@@ -6,6 +6,9 @@ from rest_framework.permissions import AllowAny
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from openai import OpenAI
+import os
+
+AI_MODEL = os.environ.get('AI_MODEL')
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -44,10 +47,12 @@ def login_user(request):
 @api_view(['POST'])
 def verify_ai_key(request):
     api_key = request.data.get('key')
+    model = request.data.get('model')
     client = OpenAI(api_key=api_key)
+    model = model if api_key and model else AI_MODEL
 
     completion = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model=model,
         messages=[
             {
                 "role": "user",
