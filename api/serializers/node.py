@@ -23,8 +23,6 @@ class NodeUpdateSerializer(serializers.ModelSerializer):
 class GenerateChildrenNodeSerializer(serializers.Serializer):
     x = serializers.FloatField()
     y = serializers.FloatField()
-    # absolute_x = serializers.FloatField()
-    # absolute_y = serializers.FloatField()
     title = serializers.CharField(max_length=255)
     id = serializers.CharField(max_length=20)
 
@@ -43,3 +41,5 @@ class AutoGenerateChildrenSerializer(serializers.Serializer):
 
 class AutoGenerateNoteSerializer(serializers.Serializer):
     instruction = serializers.CharField(required=False, max_length=500)
+    ai_key = serializers.CharField(max_length=255, required=False, allow_null=True)
+    ai_model = serializers.CharField(max_length=100, required=False, allow_null=True)
