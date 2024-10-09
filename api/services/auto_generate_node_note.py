@@ -1,5 +1,5 @@
 import os
-import threading
+import concurrent.futures
 import requests
 import json
 from typing import List, Dict, Any, Optional
@@ -9,6 +9,8 @@ from ..utils.openai import OpenaiUtil
 from ..models import Node
 
 SOCKET_URL = os.environ.get("SOCKET_URL")
+
+thread_pool = concurrent.futures.ThreadPoolExecutor(max_workers=10)
 
 
 class NodeNoteGenerator:
@@ -24,12 +26,11 @@ class NodeNoteGenerator:
             nodes = cls._get_nodes(node)
             message = cls._create_message(node, nodes, instruction)
             messages = cls._create_chat_messages(message)
-            print(ai_key)
 
-            thread = threading.Thread(
-                target=cls._run_chat_stream, args=(node.id, messages, ai_key, ai_model)
+            # Submit the task to the thread pool instead of creating a new thread
+            thread_pool.submit(
+                cls._run_chat_stream, node.id, messages, ai_key, ai_model
             )
-            thread.start()
 
             return {"success": True, "message": "Stream started"}
         except Exception as e:
