@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0020_alter_mindmap_id_alter_node_id'),
+        ("api", "0020_alter_mindmap_id_alter_node_id"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='mindmap',
-            name='id',
+            model_name="mindmap",
+            name="id",
             field=models.UUIDField(editable=False, primary_key=True, serialize=False),
         ),
     ]

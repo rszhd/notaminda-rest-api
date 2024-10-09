@@ -6,22 +6,34 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0016_alter_mindmap_id_alter_node_id'),
+        ("api", "0016_alter_mindmap_id_alter_node_id"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='mindmap',
-            name='flow_data',
+            model_name="mindmap",
+            name="flow_data",
         ),
         migrations.AlterField(
-            model_name='mindmap',
-            name='id',
-            field=models.CharField(default='2b5992ceb78d4066849c', editable=False, max_length=20, primary_key=True, serialize=False),
+            model_name="mindmap",
+            name="id",
+            field=models.CharField(
+                default="2b5992ceb78d4066849c",
+                editable=False,
+                max_length=20,
+                primary_key=True,
+                serialize=False,
+            ),
         ),
         migrations.AlterField(
-            model_name='node',
-            name='id',
-            field=models.CharField(default='b2e7bc0741724fd095d4cccdfe9dc7a6', editable=False, max_length=50, primary_key=True, serialize=False),
+            model_name="node",
+            name="id",
+            field=models.CharField(
+                default="b2e7bc0741724fd095d4cccdfe9dc7a6",
+                editable=False,
+                max_length=50,
+                primary_key=True,
+                serialize=False,
+            ),
         ),
     ]

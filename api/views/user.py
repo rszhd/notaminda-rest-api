@@ -8,62 +8,76 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from openai import OpenAI
 import os
 
-AI_MODEL = os.environ.get('AI_MODEL')
+AI_MODEL = os.environ.get("AI_MODEL")
 
-@api_view(['POST'])
+
+@api_view(["POST"])
 @permission_classes([AllowAny])
 def register_user(request):
-    password = request.data.get('password')
-    email = request.data.get('email')
+    password = request.data.get("password")
+    email = request.data.get("email")
 
     if not email or not password:
-        return Response({'error': 'Please provide both email and password'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "Please provide both email and password"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     if User.objects.filter(username=email).exists():
-        return Response({'error': 'Username already exists'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "Username already exists"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     user = User.objects.create_user(username=email, password=password, email=email)
-    return Response({'message': 'User created successfully', 'user': user }, status=status.HTTP_201_CREATED)
+    return Response(
+        {"message": "User created successfully", "user": user},
+        status=status.HTTP_201_CREATED,
+    )
 
-@api_view(['POST'])
+
+@api_view(["POST"])
 @permission_classes([AllowAny])
 def login_user(request):
-    email = request.data.get('email')
-    password = request.data.get('password')
+    email = request.data.get("email")
+    password = request.data.get("password")
 
     if not email or not password:
-        return Response({'error': 'Please provide both email and password'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "Please provide both email and password"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     user = authenticate(username=email, password=password)
 
     if user is not None:
         refresh = RefreshToken.for_user(user)
-        return Response({
-            'token': str(refresh.access_token),
-        }, status=status.HTTP_200_OK)
+        return Response(
+            {
+                "token": str(refresh.access_token),
+            },
+            status=status.HTTP_200_OK,
+        )
     else:
-        return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-    
-@api_view(['POST'])
+        return Response(
+            {"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
+        )
+
+
+@api_view(["POST"])
 def verify_ai_key(request):
-    api_key = request.data.get('key')
-    model = request.data.get('model')
+    api_key = request.data.get("key")
+    model = request.data.get("model")
     client = OpenAI(api_key=api_key)
     model = model if api_key and model else AI_MODEL
 
     completion = client.chat.completions.create(
-        model=model,
-        messages=[
-            {
-                "role": "user",
-                "content": "Hello"
-            }
-        ]
+        model=model, messages=[{"role": "user", "content": "Hello"}]
     )
 
     response = completion.choices[0].message.content
     if response is not None:
-        return Response({'message': 'User created successfully'}, status=status.HTTP_200_OK)
+        return Response(
+            {"message": "User created successfully"}, status=status.HTTP_200_OK
+        )
     else:
-        return Response({'error': 'Invalid key'}, status=status.HTTP_400_BAD_REQUEST)
-    
+        return Response({"error": "Invalid key"}, status=status.HTTP_400_BAD_REQUEST)

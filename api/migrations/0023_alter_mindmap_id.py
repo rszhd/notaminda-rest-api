@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0022_alter_mindmap_id'),
+        ("api", "0022_alter_mindmap_id"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='mindmap',
-            name='id',
-            field=models.CharField(editable=False, max_length=20, primary_key=True, serialize=False),
+            model_name="mindmap",
+            name="id",
+            field=models.CharField(
+                editable=False, max_length=20, primary_key=True, serialize=False
+            ),
         ),
     ]

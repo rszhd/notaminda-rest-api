@@ -6,11 +6,11 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0009_remove_node_api_node_id_9e7a27_idx_and_more'),
+        ("api", "0009_remove_node_api_node_id_9e7a27_idx_and_more"),
     ]
 
     operations = [
         migrations.DeleteModel(
-            name='Note',
+            name="Note",
         ),
     ]

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 import json
 
+
 class JSONFieldSerializer(serializers.Field):
     def to_representation(self, value):
         if value is None:

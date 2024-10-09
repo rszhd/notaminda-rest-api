@@ -7,24 +7,28 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0003_remove_node_user_mindmap_user'),
+        ("api", "0003_remove_node_user_mindmap_user"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='note',
-            name='content',
-            field=models.TextField(default=''),
+            model_name="note",
+            name="content",
+            field=models.TextField(default=""),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='note',
-            name='updated_at',
+            model_name="note",
+            name="updated_at",
             field=models.DateTimeField(auto_now=True),
         ),
         migrations.AlterField(
-            model_name='note',
-            name='node',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='note', to='api.node'),
+            model_name="note",
+            name="node",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="note",
+                to="api.node",
+            ),
         ),
     ]

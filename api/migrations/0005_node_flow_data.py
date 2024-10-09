@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0004_note_content_note_updated_at_alter_note_node'),
+        ("api", "0004_note_content_note_updated_at_alter_note_node"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='node',
-            name='flow_data',
+            model_name="node",
+            name="flow_data",
             field=models.JSONField(blank=True, null=True),
         ),
     ]

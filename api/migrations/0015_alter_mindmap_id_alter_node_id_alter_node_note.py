@@ -3,26 +3,39 @@
 from django.db import migrations, models
 import uuid
 
+
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0014_alter_node_id'),
+        ("api", "0014_alter_node_id"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='mindmap',
-            name='id',
-            field=models.CharField(default=uuid.uuid4().hex[:20], editable=False, max_length=20, primary_key=True, serialize=False),
+            model_name="mindmap",
+            name="id",
+            field=models.CharField(
+                default=uuid.uuid4().hex[:20],
+                editable=False,
+                max_length=20,
+                primary_key=True,
+                serialize=False,
+            ),
         ),
         migrations.AlterField(
-            model_name='node',
-            name='id',
-            field=models.CharField(default='13f7c40822764dd69e38b45b56e0759c', editable=False, max_length=50, primary_key=True, serialize=False),
+            model_name="node",
+            name="id",
+            field=models.CharField(
+                default="13f7c40822764dd69e38b45b56e0759c",
+                editable=False,
+                max_length=50,
+                primary_key=True,
+                serialize=False,
+            ),
         ),
         migrations.AlterField(
-            model_name='node',
-            name='note',
+            model_name="node",
+            name="note",
             field=models.TextField(blank=True),
         ),
     ]

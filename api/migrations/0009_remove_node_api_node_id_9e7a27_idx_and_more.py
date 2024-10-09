@@ -7,21 +7,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0008_mindmap_flow_data'),
+        ("api", "0008_mindmap_flow_data"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.RemoveIndex(
-            model_name='node',
-            name='api_node_id_9e7a27_idx',
+            model_name="node",
+            name="api_node_id_9e7a27_idx",
         ),
         migrations.AddIndex(
-            model_name='mindmap',
-            index=models.Index(fields=['user'], name='api_mindmap_user_id_2ef77e_idx'),
+            model_name="mindmap",
+            index=models.Index(fields=["user"], name="api_mindmap_user_id_2ef77e_idx"),
         ),
         migrations.AddIndex(
-            model_name='node',
-            index=models.Index(fields=['id', 'parent', 'mind_map'], name='api_node_id_67d739_idx'),
+            model_name="node",
+            index=models.Index(
+                fields=["id", "parent", "mind_map"], name="api_node_id_67d739_idx"
+            ),
         ),
     ]

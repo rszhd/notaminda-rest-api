@@ -6,14 +6,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0010_delete_note'),
+        ("api", "0010_delete_note"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='node',
-            name='note',
-            field=models.TextField(default=''),
+            model_name="node",
+            name="note",
+            field=models.TextField(default=""),
             preserve_default=False,
         ),
     ]

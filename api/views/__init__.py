@@ -1,4 +1,3 @@
-
 from .mindmap import MindMapViewSet
 from .node import NodeViewSet
 from .public_mindmap import PublicMindMapViewSet

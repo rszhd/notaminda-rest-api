@@ -1,7 +1,7 @@
-import os
 from typing import List, Callable, Dict, Any
 from openai import OpenAI
 import tiktoken
+
 
 class OpenaiUtil:
     @staticmethod
@@ -11,7 +11,7 @@ class OpenaiUtil:
         messages: List[Dict[str, str]] = [],
         on_stream: Callable[[str], None] = lambda _: None,
         openai_config: Dict[str, Any] = {},
-        model: str = None
+        model: str = None,
     ) -> Dict[str, Any]:
         client = OpenAI(api_key=api_key)
         stream = client.chat.completions.create(
@@ -19,7 +19,7 @@ class OpenaiUtil:
             messages=messages,
             temperature=0.4,
             stream=True,
-            **openai_config
+            **openai_config,
         )
 
         buffer = ""
@@ -41,8 +41,8 @@ class OpenaiUtil:
                     "token_usage": {
                         "prompt_tokens": prompt_tokens,
                         "completion_tokens": completion_tokens,
-                        "total_tokens": prompt_tokens + completion_tokens
-                    }
+                        "total_tokens": prompt_tokens + completion_tokens,
+                    },
                 }
             else:
                 token = chunk.choices[0].delta.content
@@ -62,8 +62,9 @@ class OpenaiUtil:
             "token_usage": {
                 "prompt_tokens": OpenaiUtil.count_tokens(model, messages),
                 "completion_tokens": result_total_token_count,
-                "total_tokens": OpenaiUtil.count_tokens(model, messages) + result_total_token_count
-            }
+                "total_tokens": OpenaiUtil.count_tokens(model, messages)
+                + result_total_token_count,
+            },
         }
 
     @staticmethod
@@ -78,4 +79,3 @@ class OpenaiUtil:
                     num_tokens -= 1
         num_tokens += 2
         return num_tokens
-

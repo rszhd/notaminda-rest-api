@@ -3,21 +3,34 @@
 from django.db import migrations, models
 import uuid
 
+
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0012_mindmap_is_private_alter_node_note'),
+        ("api", "0012_mindmap_is_private_alter_node_note"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='mindmap',
-            name='id',
-            field=models.CharField(default=uuid.uuid4().hex[:20], editable=False, max_length=20, primary_key=True, serialize=False),
+            model_name="mindmap",
+            name="id",
+            field=models.CharField(
+                default=uuid.uuid4().hex[:20],
+                editable=False,
+                max_length=20,
+                primary_key=True,
+                serialize=False,
+            ),
         ),
         migrations.AlterField(
-            model_name='node',
-            name='id',
-            field=models.CharField(default=uuid.uuid4().hex[:50], editable=False, max_length=30, primary_key=True, serialize=False),
+            model_name="node",
+            name="id",
+            field=models.CharField(
+                default=uuid.uuid4().hex[:50],
+                editable=False,
+                max_length=30,
+                primary_key=True,
+                serialize=False,
+            ),
         ),
     ]
