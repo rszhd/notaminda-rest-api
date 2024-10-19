@@ -147,6 +147,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 # ALLOWED_HOSTS = ["*"]
 CORS_ALLOWED_ORIGINS = [
     "https://notaminda.10brand.company",
+    "https://notaminda-api.10brand.company",
     "https://notaminda.reqres.dev",
     "https://notaminda-10brandcompany.web.app/"
 ]
