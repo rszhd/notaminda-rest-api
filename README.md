@@ -4,6 +4,4 @@
 
 Users can either create mind maps manually or leverage AI to automatically break down topics and generate comprehensive mind maps.
 
-***Interested in this project? Contact me for customization or white labeling.*
-
 ![Notaminda](https://notaminda.reqres.dev/hero.png)
